@@ -7,19 +7,24 @@ from helper import plot
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
-LR = 0.001
+
 
 
 class Agent:
 
-    def __init__(self):
+    def __init__(self,LR):
+        self.LR=LR
         self.n_games = 0
         self.epsilon = 0  # randomness
-        self.gamma = 0.9  # discount rate
+        self.min_epsilon=20
+        self.gamma = 0.90  # discount rate
         self.memory = deque(maxlen=MAX_MEMORY)  # popleft()
-        self.model = Linear_QNet(11, 256, 3)
+        #self.model = Linear_QNet(12, 132, 3)  # this gave 28 apple max
+        self.model = Linear_QNet(13,255, 3) # this gave 39 apple max
+        #self.model = Linear_QNet(12, 193, 3)  # this gave 29 apple max
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
-        self.reward=0 ##added by tony
+        self.reward=0
+
 
 
     def remember(self, state, action, reward, next_state, done):
@@ -33,7 +38,7 @@ class Agent:
 
         states, actions, rewards, next_states, dones = zip(*mini_sample)
         self.trainer.train_step(states, actions, rewards, next_states, dones)
-        # for state, action, reward, nexrt_state, done in mini_sample:
+        # for state, action, reward, next_state, done in mini_sample:
         #    self.trainer.train_step(state, action, reward, next_state, done)
 
     def train_short_memory(self, state, action, reward, next_state, done):
@@ -41,7 +46,9 @@ class Agent:
 
     def build_action_vector(self, state):
         # random moves: tradeoff exploration / exploitation
-        self.epsilon = 80 - self.n_games
+
+        self.epsilon = 120 - self.n_games
+
         final_move = [0, 0, 0]
         if random.randint(0, 200) < self.epsilon:
             move = random.randint(0, 2)

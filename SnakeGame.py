@@ -14,6 +14,10 @@ BLOCK_SIZE=20
 def GridXYConverter(Grid_num):
     return Grid_num*BLOCK_SIZE
 
+##x,y to Grid converter
+def XYGridConverter(X):
+    return X/BLOCK_SIZE
+
 
 class Point:
     def __init__(self,x,y):
@@ -90,7 +94,8 @@ class Snake:
         if self.PosList[0].x==apple.Pos.x and self.PosList[0].y==apple.Pos.y:
             self.PosList.append(Point(self.PreviousPos.x,self.PreviousPos.y))
             apple.NewPos(self.PosList)
-
+            return True
+        return False
 
 
 
@@ -124,11 +129,19 @@ class Game:
         self.SCREEN = pygame.display.set_mode(( self.WINDOW_HEIGHT,  self.WINDOW_WIDTH))
         self.CLOCK=pygame.time.Clock()
         self.blockSize = BLOCK_SIZE #Set the size of the grid block (top of page)
+        self.timeout_size=200
+
+        ##if you add/edit anything don't forget the add to it to reset func as well
         self.snake=Snake(GridXYConverter(10),GridXYConverter(10),self.colors.GREEN)
         self.apple=Apple(GridXYConverter(5),GridXYConverter(5),self.colors.RED)
+        self.apple.NewPos(self.snake.PosList)
         self.pause=False
         self.game_over=False
         self.score=0
+        self.snake_apple_dist_pre=self.__snake_apple_dist_calc()
+        self.snake_apple_dist=self.__snake_apple_dist_calc()
+        self.timeout= self.timeout_size
+        self.timeout_counter=0
 
         ##visualization testing
         self.fake_snake_list=[]
@@ -148,9 +161,6 @@ class Game:
             self.clicking_events()
 
             if not self.pause:
-                ##reset agent reward
-                agent.reward =0
-
                 ##get current state of game
                 current_state = self.evaluate_game_state()
 
@@ -160,15 +170,10 @@ class Game:
                 ##move snake
                 self.snake.move()
 
-                ##try to eat apple
-                if self.snake.eat(self.apple):
-                    agent.reward=10
-                    self.score+=1
+                self.evaluate_reward(agent)
 
-                ##check for collision with wall/snake body
-                if self.collision(self.snake.PosList[0]):
-                    self.game_over=True
-                    agent.reward = -10
+                ##update previous distance between apple and snake
+                self.snake_apple_dist_pre = self.snake_apple_dist
 
                 ##draw game
                 self.draw()
@@ -177,19 +182,26 @@ class Game:
                 new_state=self.evaluate_game_state()
 
                 ##train short memory
-                agent.train_short_memory(current_state, self.snake.action_vector, agent.reward, new_state, done=False)
+                agent.train_short_memory(current_state, self.snake.action_vector[-1], agent.reward, new_state, done=self.game_over)
 
                 # remember
-                agent.remember(current_state, self.snake.action_vector, agent.reward, new_state, done=False)
+                agent.remember(current_state, self.snake.action_vector[-1], agent.reward, new_state, done=self.game_over)
 
-        return self.score
+
+
+
 
     def reset(self):
         self.snake = Snake(GridXYConverter(10), GridXYConverter(10), self.colors.GREEN)
         self.apple = Apple(GridXYConverter(5), GridXYConverter(5), self.colors.RED)
+        self.apple.NewPos(self.snake.PosList)
         self.pause = False
         self.game_over = False
         self.score = 0
+        self.snake_apple_dist_pre = self.__snake_apple_dist_calc()
+        self.snake_apple_dist = self.__snake_apple_dist_calc()
+        self.timeout =self.timeout_size
+        self.timeout_counter = 0
 
     def clicking_events(self):
         for event in pygame.event.get():
@@ -211,7 +223,7 @@ class Game:
         self.drawSnake()
         self.drawApple()
         pygame.display.update()
-        time.sleep(0.1)
+        #time.sleep(0.000001)
 
 
 
@@ -255,12 +267,43 @@ class Game:
         else:
             return False
 
+    def evaluate_reward(self,agent):
+        ##reset agent reward
+        agent.reward = 0
+
+        ##try to eat apple
+        if self.snake.eat(self.apple):
+            agent.reward += 100
+            self.score += 1
+            self.timeout=self.timeout_size ##reset timeout
+
+        ##check if going toward apple
+        if self.snake_apple_dist < self.snake_apple_dist_pre:
+            agent.reward += max(0, 10 - self.snake_apple_dist)
+            # agent.reward +=1
+
+        ##check if going away from apple
+        elif self.snake_apple_dist > self.snake_apple_dist_pre:
+            agent.reward += max(-10, -1 * (self.snake_apple_dist))
+            # agent.reward += -1
+
+        ##check for collision with wall/snake body or timeout
+        if self.collision(self.snake.PosList[0]) or self.timeout==0:
+            if self.timeout==0:
+                self.timeout_counter+=1
+                print("TIMEOUT")
+            self.game_over = True
+            agent.reward = -100
+
+
     ##evaluate game state for ML model
     def evaluate_game_state(self):
-        ##11 states overall which will be fed as an input to the NN
+        ##13 states overall which will be fed as an input to the NN
         ## danger: danger_straight,danger_left,danger_right
         ## current direction of snake: up,left,down,right
         ## apple position: up,left,down,right
+        ## apple-snake manhattan distance
+        ## timeout- 200 turns without eating apple == GameOver
 
 
         ##first part:
@@ -349,8 +392,19 @@ class Game:
         elif self.apple.Pos.x < self.snake.PosList[0].x:  ##apple is left to snake
             apple_pos[1] = 1
 
-        return danger+snake_dir+apple_pos
+
+        ##fourth part:
+        self.snake_apple_dist=self.__snake_apple_dist_calc()
 
 
+        ##fifth part:
+        self.timeout-=1
 
+
+        #return danger+snake_dir+apple_pos+[1/(1+self.snake_apple_dist)]
+        return danger + snake_dir + apple_pos + [self.snake_apple_dist*(0.0125)]+[self.timeout/self.timeout_size]
+
+
+    def __snake_apple_dist_calc(self):
+        return XYGridConverter(abs(self.snake.PosList[0].x-self.apple.Pos.x)+abs(self.snake.PosList[0].y-self.apple.Pos.y))
 

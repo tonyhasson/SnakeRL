@@ -50,10 +50,12 @@ class QTrainer:
 
         # 1: predicted Q values with current state
         pred = self.model(state)
-
+        #print("pred:",pred)
         target = pred.clone()
         for idx in range(len(done)):
             Q_new = reward[idx]
+            #print("reward:", reward)
+            #print("Q_new:", Q_new)
             if not done[idx]:
                 Q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx]))
 
