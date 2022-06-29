@@ -1,9 +1,7 @@
 import torch
 import random
-import numpy as np
 from collections import deque
 from model import Linear_QNet, QTrainer
-from helper import plot
 
 MAX_MEMORY = 100_000
 BATCH_SIZE = 1000
@@ -21,10 +19,6 @@ class Agent:
         self.model = Linear_QNet(13,255, 3)
         self.trainer = QTrainer(self.model, lr=LR, gamma=self.gamma)
         self.reward=0
-
-
-    def reset(self):
-        self.memory = deque(maxlen=MAX_MEMORY)
 
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))  # popleft if MAX_MEMORY is reached

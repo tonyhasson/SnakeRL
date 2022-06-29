@@ -23,8 +23,9 @@ class Point:
         self.y=y
 
 class Snake:
-    def __init__(self,start_x,start_y,color):
-        self.color=color
+    def __init__(self,start_x,start_y,color_body,color_head):
+        self.color_body=color_body
+        self.color_head = color_head
         self.PosList=[]
         self.PosList.append(Point(start_x,start_y))
         self.action_pattern=0  ## 0->up , 1>left  , 2->down  , 3->right
@@ -106,11 +107,26 @@ class Apple:
 
     def NewPos(self,snake_list):
         ##set random values
-        x,y=random.randint(0,19),random.randint(0,19)
-        while (x,y) in snake_list:
-            x, y = random.randint(0, 19), random.randint(0, 19)
-        self.Pos.x=GridXYConverter(x)
-        self.Pos.y=GridXYConverter(y)
+        # x,y=random.randint(0,19),random.randint(0,19)
+        # while (x,y) in snake_list:
+        #     x, y = random.randint(0, 19), random.randint(0, 19)
+        # self.Pos.x=GridXYConverter(x)
+        # self.Pos.y=GridXYConverter(y)
+
+        x=y=0
+        try_again=True
+        while try_again:
+            try_again = False
+            ##set random values
+            x, y = GridXYConverter(random.randint(0, 19)), GridXYConverter(random.randint(0, 19))
+            for snake in snake_list:
+                ##if apple is in snake position, try again
+                if x ==snake.x and y==snake.y:
+                    try_again = True
+                    break
+        self.Pos.x = x
+        self.Pos.y = y
+
 class Colors:
     def __init__(self):
         self.BLACK=(0, 0, 0)
@@ -130,7 +146,7 @@ class Game:
         self.timeout_size=200
 
         ##if you add/edit anything don't forget the add to it to reset func as well
-        self.snake=Snake(GridXYConverter(10),GridXYConverter(10),self.colors.GREEN)
+        self.snake=Snake(GridXYConverter(10),GridXYConverter(10),self.colors.GREEN,self.colors.BLUE)
         self.apple=Apple(GridXYConverter(5),GridXYConverter(5),self.colors.RED)
         self.apple.NewPos(self.snake.PosList)
         self.pause=False
@@ -191,7 +207,7 @@ class Game:
 
 
     def reset(self):
-        self.snake = Snake(GridXYConverter(10), GridXYConverter(10), self.colors.GREEN)
+        self.snake = Snake(GridXYConverter(10), GridXYConverter(10), self.colors.GREEN,self.colors.BLUE)
         self.apple = Apple(GridXYConverter(5), GridXYConverter(5), self.colors.RED)
         self.apple.NewPos(self.snake.PosList)
         self.pause = False
@@ -233,9 +249,14 @@ class Game:
                 pygame.draw.rect(self.SCREEN, self.colors.BLACK, rect, 0)
 
     def drawSnake(self):
-        for Pos in self.snake.PosList:
+        for i,Pos in enumerate(self.snake.PosList):
             rect = pygame.Rect(Pos.x, Pos.y, self.blockSize, self.blockSize)
-            pygame.draw.rect(self.SCREEN, self.snake.color, rect, 0)
+            ##if looking at head of snake
+            if i==0:
+                pygame.draw.rect(self.SCREEN, self.snake.color_head, rect, 0)
+            ##if looking at body of snake
+            else:
+                pygame.draw.rect(self.SCREEN, self.snake.color_body, rect, 0)
             ##visulzation testing
 
         ##draw fake snake parts (for visualization only)
@@ -314,9 +335,9 @@ class Game:
         ##calc danger
         danger=[0,0,0]
         ##create 3 fake snake parts according to previous position and 3 possible directions
-        danger_straight=Snake(self.snake.PosList[0].x,self.snake.PosList[0].y,self.colors.BLUE)
-        danger_left=Snake(self.snake.PosList[0].x,self.snake.PosList[0].y,self.colors.BLUE)
-        danger_right=Snake(self.snake.PosList[0].x,self.snake.PosList[0].y,self.colors.BLUE)
+        danger_straight=Snake(self.snake.PosList[0].x,self.snake.PosList[0].y,self.colors.BLACK,self.colors.BLACK)
+        danger_left=Snake(self.snake.PosList[0].x,self.snake.PosList[0].y,self.colors.BLACK,self.colors.BLACK)
+        danger_right=Snake(self.snake.PosList[0].x,self.snake.PosList[0].y,self.colors.BLACK,self.colors.BLACK)
 
         danger_straight.PosList[0].x=self.snake.PosList[0].x
         danger_straight.PosList[0].y = self.snake.PosList[0].y

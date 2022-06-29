@@ -2,7 +2,7 @@ from SnakeGame import Game
 from agent import Agent
 
 
-
+##used for testing the best learning rate
 
 if __name__ == '__main__':
 

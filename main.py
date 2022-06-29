@@ -7,7 +7,6 @@ LR = 0.0083
 
 
 if __name__ == '__main__':
-    #epoch=int(input("enter amount of epoch's:"))
 
     plot_scores = []
     plot_mean_scores = []
@@ -37,6 +36,6 @@ if __name__ == '__main__':
 
 
         gm.reset()
-        ##fixme added new
-        #agent.reset()
+
+
 
