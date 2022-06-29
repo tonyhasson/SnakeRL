@@ -2,10 +2,9 @@ from SnakeGame import Game
 from agent import Agent
 from helper import plot
 
-##LR = 0.001    ##original
-##LR = 0.00125  ##better results at the beggining
-#LR = 0.005    ##even better results at the beggining
-LR = 0.0083    ##even better results at the beggining
+
+LR = 0.0083
+
 
 if __name__ == '__main__':
     #epoch=int(input("enter amount of epoch's:"))
@@ -38,4 +37,6 @@ if __name__ == '__main__':
 
 
         gm.reset()
+        ##fixme added new
+        #agent.reset()
 

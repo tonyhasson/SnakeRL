@@ -1,10 +1,8 @@
-import time
-
 import pygame
 import sys
 import random
 
-from Model import build_action_vector  ## for now until real model is built
+
 
 
 clock=pygame.time.Clock()
@@ -35,10 +33,10 @@ class Snake:
 
     def get_action(self,state,agent):
 
-        ##create random list of action(later will be a ML model)
+        ##create random list of action(later will be a ML model_saver)
         #self.action_vector.append(build_action_vector(state))
 
-        ##with model using agent
+        ##with model_saver using agent
         self.action_vector.append(agent.build_action_vector(state))
 
     def move(self):
@@ -161,6 +159,7 @@ class Game:
             self.clicking_events()
 
             if not self.pause:
+
                 ##get current state of game
                 current_state = self.evaluate_game_state()
 
@@ -277,6 +276,10 @@ class Game:
             self.score += 1
             self.timeout=self.timeout_size ##reset timeout
 
+        ##didn't eat apple
+        else:
+            self.timeout-=1
+
         ##check if going toward apple
         if self.snake_apple_dist < self.snake_apple_dist_pre:
             agent.reward += max(0, 10 - self.snake_apple_dist)
@@ -296,7 +299,7 @@ class Game:
             agent.reward = -100
 
 
-    ##evaluate game state for ML model
+    ##evaluate game state for ML model_saver
     def evaluate_game_state(self):
         ##13 states overall which will be fed as an input to the NN
         ## danger: danger_straight,danger_left,danger_right
@@ -395,10 +398,6 @@ class Game:
 
         ##fourth part:
         self.snake_apple_dist=self.__snake_apple_dist_calc()
-
-
-        ##fifth part:
-        self.timeout-=1
 
 
         #return danger+snake_dir+apple_pos+[1/(1+self.snake_apple_dist)]

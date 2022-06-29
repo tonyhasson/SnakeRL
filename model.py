@@ -16,13 +16,15 @@ class Linear_QNet(nn.Module):
         x = self.linear2(x)
         return x
 
-    def save(self, file_name='model.pth'):
-        model_folder_path = './model'
+    def save(self, file_name='model_saver.pth'):
+        model_folder_path = 'model_saver'
         if not os.path.exists(model_folder_path):
             os.makedirs(model_folder_path)
 
         file_name = os.path.join(model_folder_path, file_name)
         torch.save(self.state_dict(), file_name)
+
+
 
 
 class QTrainer:
@@ -50,16 +52,19 @@ class QTrainer:
 
         # 1: predicted Q values with current state
         pred = self.model(state)
-        #print("pred:",pred)
         target = pred.clone()
-        for idx in range(len(done)):
-            Q_new = reward[idx]
-            #print("reward:", reward)
-            #print("Q_new:", Q_new)
-            if not done[idx]:
-                Q_new = reward[idx] + self.gamma * torch.max(self.model(next_state[idx]))
 
-            target[idx][torch.argmax(action[idx]).item()] = Q_new
+        ##iterate over game rewards
+        for i in range(len(done)):
+
+            ##get reward for game idx
+            Q_new = reward[i]
+
+            ##if didn't lose the round
+            if not done[i]:
+                Q_new += self.gamma * torch.max(self.model(next_state[i]))
+
+            target[i][torch.argmax(action[i]).item()] = Q_new
 
         # 2: Q_new = r + y * max(next_predicted Q value) -> only do this if not done
         # pred.clone()
