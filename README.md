@@ -2,14 +2,14 @@
 
 I built a Reinforcement Learning model that teaches an agent through game exprience how to play snake (and play it quite well).
 
-Information about the files:
+##Information about the files:
 
 * SnakeGame.py - contains the snake game logic and environment.
 * agent.py - contains the structure of the agent.
 * model.py - contains the Q-net logic.
 * main.py - the main program which connects all of these programs together.
 
-Information about the model:
+##Information about the model:
 
 * Model - DQN.
 
