@@ -46,7 +46,7 @@ DQN.
 * After the agent dies,the network is fed a batch of 1000 random states saved in memory.
 
 ## Resources
-https://github.com/python-engineer/snake-ai-pytorch   -> I used the model+agent as a example for mine and made it better.
+https://github.com/python-engineer/snake-ai-pytorch   -> I used the model+agent as an example for mine and made it better.
 https://towardsdatascience.com/snake-played-by-a-deep-reinforcement-learning-agent-53f2c4331d36   -> learned about the concept of Exprience Replay which improved my model tremendously.
 
 https://user-images.githubusercontent.com/63504193/176749058-644da21c-9063-44d3-8174-c32e6669abe0.mp4
