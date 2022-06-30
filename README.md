@@ -2,33 +2,44 @@
 
 I built a Reinforcement Learning model that teaches an agent through game exprience how to play snake (and play it quite well).
 
-##Information about the files:
+## Information about the files
 
 * SnakeGame.py - contains the snake game logic and environment.
 * agent.py - contains the structure of the agent.
 * model.py - contains the Q-net logic.
 * main.py - the main program which connects all of these programs together.
 
-##Information about the model:
+## Information about the model
 
-* Model - DQN.
+# Model :
+DQN.
 
-* Layers :   13 -> 255 -> 3 .
+# Layers :
+13 -> 255 -> 3 .
 
-** The input is 13 parameters describing the state of the game:
-** danger: danger_straight,danger_left,danger_right
-** current direction of snake: up,left,down,right
-** apple position: up,left,down,right
-** apple-snake manhattan distance
-** timeout- 200 turns without eating apple == GameOver
+# The input:
+13 parameters describing the state of the game-
+* danger: danger_straight,danger_left,danger_right.
+* current direction of snake: up,left,down,right.
+* apple position: up,left,down,right.
+* apple-snake manhattan distance.
+* timeout- 200 turns without eating apple == GameOver.
 
-* The output is 3 options of an action : turn left,turn right or continue straight.
+# The output :
+3 options of an action -
+* turn left.
+* turn right. 
+* continue straight.
 
-* Learning rate : 0.0083
+# Learning rate : 
+0.0083
 
-* Discount rate : 0.9
+# Discount rate :
+0.9
 
-* The agent might make random actions until game 30,afterwards it plays only by knowledge of previous games.
+## Learning Process 
+
+* The agent might make random actions until game 30,afterwards it plays only by knowledge of previous games.(Exploration/Explotation Trade Off)
 
 * Exprience replay is used after every agents move,feeding to the network a batch consisting of 6 random states saved in memory.
 
