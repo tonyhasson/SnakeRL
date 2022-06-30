@@ -20,3 +20,5 @@ Information about the model:
 * After the agent dies,the network is fed a batch of 1000 random states saved in memory.
 
 
+
+https://user-images.githubusercontent.com/63504193/176749058-644da21c-9063-44d3-8174-c32e6669abe0.mp4
