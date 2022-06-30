@@ -11,13 +11,13 @@ I built a Reinforcement Learning model that teaches an agent through game exprie
 
 ## Information about the model
 
-# Model :
+### Model :
 DQN.
 
-# Layers :
+### Layers :
 13 -> 255 -> 3 .
 
-# The input:
+### The input:
 13 parameters describing the state of the game-
 * danger: danger_straight,danger_left,danger_right.
 * current direction of snake: up,left,down,right.
@@ -25,16 +25,16 @@ DQN.
 * apple-snake manhattan distance.
 * timeout- 200 turns without eating apple == GameOver.
 
-# The output :
+### The output :
 3 options of an action -
 * turn left.
 * turn right. 
 * continue straight.
 
-# Learning rate : 
+### Learning rate : 
 0.0083
 
-# Discount rate :
+### Discount rate :
 0.9
 
 ## Learning Process 
