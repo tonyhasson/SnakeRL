@@ -12,18 +12,26 @@ Information about the files:
 Information about the model:
 
 * Model - DQN.
+
 * Layers :   13 -> 255 -> 3 .
+
 * The input is 13 parameters describing the state of the game:
- * danger: danger_straight,danger_left,danger_right
- * current direction of snake: up,left,down,right
- * apple position: up,left,down,right
- * apple-snake manhattan distance
- * timeout- 200 turns without eating apple == GameOver
+* danger: danger_straight,danger_left,danger_right
+* current direction of snake: up,left,down,right
+* apple position: up,left,down,right
+* apple-snake manhattan distance
+* timeout- 200 turns without eating apple == GameOver
+
 * The output is 3 options of an action : turn left,turn right or continue straight.
+
 * Learning rate : 0.0083
+
 * Discount rate : 0.9
+
 * The agent might make random actions until game 30,afterwards it plays only by knowledge of previous games.
+
 * Exprience replay is used after every agents move,feeding to the network a batch consisting of 6 random states saved in memory.
+
 * After the agent dies,the network is fed a batch of 1000 random states saved in memory.
 
 
