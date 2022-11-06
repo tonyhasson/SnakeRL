@@ -163,6 +163,10 @@ class Colors:
         self.GREEN=(0,255,0)
         self.BLUE=(0,0,255)
 
+    def RGB_to_Gray(self,color):
+        return 0.299*color[0] + 0.5870*color[1] + 0.1140 * color[2]
+
+
 ##class with regular states
 class Game:
     def __init__(self):
@@ -458,7 +462,7 @@ class GameGridAsState:
         self.SCREEN = pygame.display.set_mode((self.WINDOW_HEIGHT, self.WINDOW_WIDTH))
         self.CLOCK = pygame.time.Clock()
         self.blockSize = BLOCK_SIZE  # Set the size of the grid block (top of page)
-        self.timeout_size = 200
+        self.timeout_size = 800
 
         ##if you add/edit anything don't forget the add to it to reset func as well
         self.snake = Snake.new(GridXYConverter(10), GridXYConverter(10), self.colors.GREEN, self.colors.BLUE)
@@ -467,7 +471,7 @@ class GameGridAsState:
         self.pause = False
         self.game_over = False
         self.score = 0
-        self.Grid_State_Real=np.zeros(shape=(3,3,20,20),dtype='f')
+        self.Grid_State_Real=np.zeros(shape=(3,20,20),dtype='f')
 
         self.snake_apple_dist_pre = self.__snake_apple_dist_calc()
         self.snake_apple_dist = self.__snake_apple_dist_calc()
@@ -529,7 +533,7 @@ class GameGridAsState:
         self.pause = False
         self.game_over = False
         self.score = 0
-        self.Grid_State_Real = np.zeros(shape=(3, 3, 20, 20), dtype='f')
+        self.Grid_State_Real = np.zeros(shape=(3, 20, 20), dtype='f')
 
         self.snake_apple_dist_pre = self.__snake_apple_dist_calc()
         self.snake_apple_dist = self.__snake_apple_dist_calc()
@@ -642,7 +646,7 @@ class GameGridAsState:
 
         ##try to eat apple
         if self.snake.eat(self.apple):
-            agent.reward += 100
+            agent.reward += 1000
             self.score += 1
             self.timeout = self.timeout_size  ##reset timeout
 
@@ -670,7 +674,7 @@ class GameGridAsState:
                 self.timeout_counter += 1
                 print("TIMEOUT")
             self.game_over = True
-            agent.reward = -100
+            agent.reward = -1000
 
     ##evaluate game state for ML model
     def evaluate_game_state(self):
@@ -709,9 +713,7 @@ class GameGridAsState:
 
         ##get apple position
         for p in range(3):
-            for c in range(3):
-                self.Grid_State_Real[p][c][int(XYGridConverter(self.apple.Pos.y))][int(XYGridConverter(self.apple.Pos.x))]=self.apple.color[c]
-
+                self.Grid_State_Real[p][int(XYGridConverter(self.apple.Pos.y))][int(XYGridConverter(self.apple.Pos.x))]=self.colors.RGB_to_Gray(self.apple.color)
         return self.Grid_State_Real
 
 
@@ -723,9 +725,7 @@ class GameGridAsState:
                 try:
                     ##for each color channel
 
-                    Grid_State[0][int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))]=snake.color_head[0]
-                    Grid_State[1][int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))] = snake.color_head[1]
-                    Grid_State[2][int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))] = snake.color_head[2]
+                    Grid_State[int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))]=self.colors.RGB_to_Gray(snake.color_head)
                 except:
                     pass
             ##if looking at body of snake
@@ -733,9 +733,8 @@ class GameGridAsState:
                 try:
                     ##for each color channel
 
-                    Grid_State[0][int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))] = snake.color_head[0]
-                    Grid_State[1][int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))] = snake.color_head[1]
-                    Grid_State[2][int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))] = snake.color_head[2]
+                    Grid_State[int(XYGridConverter(Pos.y))][int(XYGridConverter(Pos.x))]=self.colors.RGB_to_Gray(snake.color_body)
+
                 except:
                     pass
 

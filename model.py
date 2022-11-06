@@ -4,6 +4,14 @@ import torch.optim as optim
 import torch.nn.functional as F
 import os
 
+if torch.cuda.is_available():
+  dev = "cuda:0"
+else:
+  dev = "cpu"
+device = torch.device(dev)
+#torch.zeros(1).cuda()
+#print(torch.cuda.is_available())
+
 
 class Linear_QNet(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -40,6 +48,12 @@ class QTrainer:
         reward = torch.tensor(reward, dtype=torch.float)
         # (n, x)
 
+        ##moving tensors to gpu
+        state=state.to(device)
+        next_state = next_state.to(device)
+        action = action.to(device)
+        reward = reward.to(device)
+
         if len(state.shape) == 1:
             # (1, x)
             state = torch.unsqueeze(state, 0)
@@ -70,25 +84,10 @@ class QTrainer:
         loss.backward()
 
         self.optimizer.step()
-
+##todo try building better CNN model
 class convnet1(nn.Module):
     def __init__(self):
         super(convnet1, self).__init__()
-
-        # Constraints for layer 1
-        # self.conv1 = nn.Conv2d(in_channels=1, out_channels=16, kernel_size=5, stride=1, padding=2)
-        # self.batch1 = nn.BatchNorm2d(16)
-        # self.relu1 = nn.ReLU()
-        # self.pool1 = nn.MaxPool2d(kernel_size=2)  # default stride is equivalent to the kernel_size
-        #
-        # # Constraints for layer 2
-        # self.conv2 = nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, padding=2)
-        # self.batch2 = nn.BatchNorm2d(32)
-        # self.relu2 = nn.ReLU()
-        # self.pool2 = nn.MaxPool2d(kernel_size=2)
-        #
-        # # Defining the Linear layer
-        # self.fc = nn.Linear(32 * 7 * 7, 10)
 
         # Constraints for layer 1
         self.conv1_1=nn.Conv2d(3,10,kernel_size=(5,5),padding=2)
@@ -103,6 +102,9 @@ class convnet1(nn.Module):
         # Defining the Linear layer
         self.fc1 = nn.Linear(10 * 4 * 4, 255)
         self.fc2 = nn.Linear(255, 3)
+
+        # self.fc1 = nn.Linear(10 * 4 * 4, 82)
+        # self.fc2 = nn.Linear(82, 3)
 
 
         #activation function

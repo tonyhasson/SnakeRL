@@ -40,8 +40,8 @@ def CNN_run():
     plot_mean_scores = []
     total_score = 0
     record = 0
-    epoch = 200
-    agent = Agent_CNN(LR, 80)
+    epoch = 400
+    agent = Agent_CNN(LR, 300,epoch)
     gm = GameGridAsState()
     for i in range(epoch):
         gm.main(agent)
@@ -70,6 +70,8 @@ def CNN_run():
 if __name__ == '__main__':
     DQN_run()
     #CNN_run()
+
+
 
 
 
